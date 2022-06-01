@@ -25,8 +25,8 @@ class Command(BaseCommand):
         with open('./static/data/genre.csv', encoding='utf-8') as file:
             data = csv.DictReader(file)
             for row in data:
-                genre = Genres(
+                data_load = Genres(
                     id=row['id'], name=row['name'], slug=row['slug'])
-                genre.save()
+                data_load.save()
 
         print("Данные загружены")

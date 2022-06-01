@@ -26,11 +26,12 @@ class Titles(models.Model):
     )
     category = models.ForeignKey(
         Categories,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name='titles',
-        verbose_name='Категория'
+        verbose_name='Категория',
+        null=True,
     )
-    year = models.IntegerField('Год создания')
+    year = models.IntegerField('Год создания', null=True)
     description = models.TextField('Описание')
 
     def __str__(self):
@@ -55,12 +56,17 @@ class Genre_title(models.Model):
     genre = models.ForeignKey(
         Genres,
         on_delete=models.CASCADE,
-        related_name='genre',
-        verbose_name='Жанр'
+        related_name='title',
+        verbose_name='Жанр',
+        null=True
     )
     title = models.ForeignKey(
         Titles,
         on_delete=models.CASCADE,
-        related_name='title',
-        verbose_name='Категория'
+        related_name='genre',
+        verbose_name='Категория',
+        null=True
     )
+
+    def __str__(self):
+        return f'{self.title.name} {self.genre.name}'

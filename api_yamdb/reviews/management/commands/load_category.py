@@ -22,11 +22,11 @@ class Command(BaseCommand):
 
         print("Загрузка данных")
 
-        with open('./static/data/genre.csv', encoding='utf-8') as file:
+        with open('./static/data/category.csv', encoding='utf-8') as file:
             data = csv.DictReader(file)
             for row in data:
-                genre = Categories(
+                data_load = Categories(
                     id=row['id'], name=row['name'], slug=row['slug'])
-                genre.save()
+                data_load.save()
 
         print("Данные загружены")

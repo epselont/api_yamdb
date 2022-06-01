@@ -1,7 +1,7 @@
 import csv
 from django.core.management import BaseCommand
 
-from reviews.models import Genres
+from reviews.models import Users
 
 
 ALREDY_LOADED_ERROR_MESSAGE = """
@@ -16,17 +16,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if Genres.objects.exists():
+        if Users.objects.exists():
             print(ALREDY_LOADED_ERROR_MESSAGE)
             return
 
         print("Загрузка данных")
 
-        with open('./static/data/genre.csv', encoding='utf-8') as file:
+        with open('./static/data/users.csv', encoding='utf-8') as file:
             data = csv.DictReader(file)
             for row in data:
-                genre = Genres(
-                    id=row['id'], name=row['name'], slug=row['slug'])
-                genre.save()
+                data_load = Users(
+                    id=row['id'],
+                    username=row['username'],
+                    email=row['email'],
+                    role=row['role'],
+                    bio=row['bio'],
+                    first_name=row['first_name'],
+                    last_name=row['last_name']
+                )
+                data_load.save()
 
         print("Данные загружены")
