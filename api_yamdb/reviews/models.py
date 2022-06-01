@@ -26,7 +26,7 @@ class Titles(models.Model):
     )
     category = models.ForeignKey(
         Categories,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='titles',
         verbose_name='Категория'
     )
@@ -54,13 +54,13 @@ class Genres(models.Model):
 class Genre_title(models.Model):
     genre = models.ForeignKey(
         Genres,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='genre',
         verbose_name='Жанр'
     )
     title = models.ForeignKey(
         Titles,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='title',
         verbose_name='Категория'
     )
