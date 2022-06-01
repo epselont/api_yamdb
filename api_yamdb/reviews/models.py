@@ -48,10 +48,12 @@ class User(AbstractUser):
 
     @property
     def is_moderator(self):
+        '''Пользователь в статусе модератора'''
         return self.role == self.MODERATOR
 
     @property
     def is_admin(self):
+        '''Пользователь в статусе администратора'''
         return self.role == self.ADMIN
 
     class Meta:
