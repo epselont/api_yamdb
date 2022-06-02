@@ -1,11 +1,9 @@
 from datetime import datetime
 
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from reviews.models import (Categories, Comment, Genre_title, Genres, Review,
-                            Titles)
-
-User = get_user_model()
+                            Titles, User)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -62,3 +60,35 @@ class TitlesSerializer(serializers.ModelSerializer):
                 'Это произведение не опубликованно, проверьте дату!'
             )
         return value
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    """Сериализация регистрации пользователя."""
+    username = serializers.CharField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+    email = serializers.EmailField(
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+
+    def validate_username(self, name):
+        """Запрещено использование имени 'me'."""
+        if name == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя "me" в качестве username запрещено.'
+            )
+        return name
+
+    class Meta:
+        fields = ('username', 'email',)
+        model = User
+
+
+class TokenSerializer(serializers.Serializer):
+    """Сериализация для получения токена."""
+    username = serializers.CharField()
+    confirmation_code = serializers.CharField()

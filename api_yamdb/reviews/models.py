@@ -1,16 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-
-User = get_user_model()
-
-
-class Title(models.Model):
-    name = models.CharField(max_length=100)
 
 
 def validate_even(value):
@@ -21,10 +12,122 @@ def validate_even(value):
         )
 
 
+class User(AbstractUser):
+    """Модель пользователя с выбором его роли."""
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+    USER = 'user'
+
+    ROLES = [
+        (ADMIN, 'Администратор'),
+        (MODERATOR, 'Модератор'),
+        (USER, 'Пользователь'),
+    ]
+
+    username = models.CharField(
+        verbose_name='Никнейм',
+        max_length=30,
+        unique=True,
+    )
+    email = models.EmailField(
+        verbose_name='Адрес электронной почты',
+        max_length=255,
+        unique=True,
+    )
+    role = models.CharField(
+        verbose_name='Роль',
+        max_length=30,
+        choices=ROLES,
+        default=USER,
+    )
+    bio = models.TextField(
+        verbose_name='Биография',
+        blank=True,
+        null=True,
+    )
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=20,
+        null=True,
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=40,
+        null=True,
+    )
+
+    @property
+    def is_moderator(self):
+        """Пользователь в статусе модератора."""
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        """Пользователь в статусе администратора."""
+        return self.role == self.ADMIN
+
+    # Свойство сообщает какое поле используется для входа в систему.
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username',)
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+
+class Genres(models.Model):
+    name = models.CharField(
+        'Название жанра',
+        max_length=200
+    )
+    slug = models.SlugField(
+        'Адрес жанра',
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Categories(models.Model):
+    name = models.CharField(
+        'Название категории',
+        max_length=256
+    )
+    slug = models.SlugField(
+        'Адрес категории',
+        max_length=50,
+        unique=True
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Titles(models.Model):
+    name = models.CharField(
+        'Название произведения',
+        max_length=200
+    )
+    year = models.IntegerField('Год создания', null=True)
+    description = models.TextField('Описание')
+    genre = models.ManyToManyField(Genres, through='Genre_title')
+    category = models.ForeignKey(
+        Categories,
+        on_delete=models.CASCADE,
+        related_name='titles',
+        verbose_name='Категория',
+    )
+
+    def __str__(self):
+        return self.name
+
+
 class Review(models.Model):
     text = models.TextField()
     title = models.ForeignKey(
-        Title,
+        Titles,
         on_delete=models.CASCADE,
         related_name='reviews',
     )
@@ -64,54 +167,6 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
-
-
-class Categories(models.Model):
-    name = models.CharField(
-        'Название категории',
-        max_length=256
-    )
-    slug = models.SlugField(
-        'Адрес категории',
-        max_length=50,
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class Genres(models.Model):
-    name = models.CharField(
-        'Название жанра',
-        max_length=200
-    )
-    slug = models.SlugField(
-        'Адрес жанра',
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-
-class Titles(models.Model):
-    name = models.CharField(
-        'Название произведения',
-        max_length=200
-    )
-    year = models.IntegerField('Год создания', null=True)
-    description = models.TextField('Описание')
-    genre = models.ManyToManyField(Genres, through='Genre_title')
-    category = models.ForeignKey(
-        Categories,
-        on_delete=models.CASCADE,
-        related_name='titles',
-        verbose_name='Категория',
-    )
-
-    def __str__(self):
-        return self.name
 
 
 class Genre_title(models.Model):
