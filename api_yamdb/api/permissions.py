@@ -1,8 +1,18 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-class IsAdminOrReadOnly(BasePermission):
+class IsAdminOnly(BasePermission):
     """Права администратора на управление всем контентом проекта."""
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (
+            request.user.is_admin or request.user.is_superuser)
+
+
+class IsAdminOrReadOnly(BasePermission):
+    """Права администратора и права чтения всеми пользователями."""
+
+    message = 'Требуются права администратора!'
+
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
                 or (request.user.is_authenticated and (
@@ -10,15 +20,12 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class IsAdminModeratorOwnerOrReadOnly(BasePermission):
-    """Права администратора, модератора, автора на управление контентом."""
-    def has_permission(self, request, view):
-        return (request.method in SAFE_METHODS
-                or request.user.is_authenticated)
+    """Права на изменение контента администратором,
+    модератором, автором."""
 
-    message = 'Изменение чужого контента запрещено!'
+    message = 'Изменение доступно автору, модератору или администратору!'
 
     def has_object_permission(self, request, view, obj):
-        """Права на изменение контента администратором, модераторм, автором."""
         return (request.method in SAFE_METHODS
                 or request.user.is_admin
                 or request.user.is_moderator
