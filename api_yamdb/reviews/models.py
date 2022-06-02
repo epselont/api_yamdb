@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    '''Модель пользователя с выбором его роли.'''
+    """Модель пользователя с выбором его роли."""
     ADMIN = 'admin'
     MODERATOR = 'moderator'
     USER = 'user'
@@ -48,13 +48,17 @@ class User(AbstractUser):
 
     @property
     def is_moderator(self):
-        '''Пользователь в статусе модератора'''
+        """Пользователь в статусе модератора."""
         return self.role == self.MODERATOR
 
     @property
     def is_admin(self):
-        '''Пользователь в статусе администратора'''
+        """Пользователь в статусе администратора."""
         return self.role == self.ADMIN
+
+    # Свойство сообщает какое поле используется для входа в систему.
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username',)
 
     class Meta:
         ordering = ['id']
