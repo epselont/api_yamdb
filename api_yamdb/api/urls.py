@@ -5,8 +5,8 @@ from .views import CategoriesViewSet, GenresViewSet, GenreTitleViewSet, TitlesVi
 
 router = routers.DefaultRouter()
 router.register('categories', CategoriesViewSet)
-router.register('genre', GenresViewSet)
-router.register('title', TitlesViewSet)
+router.register('genres', GenresViewSet)
+router.register('titles', TitlesViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
