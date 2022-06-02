@@ -1,10 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, viewsets
 from rest_framework.pagination import PageNumberPagination
-from reviews.models import Title, Review
+from reviews.models import (Categories, Genre_title, Genres, Review, Title,
+                            Titles)
+
 from .mixins import OnlyAuthor
-from .serializers import ReviewSerializer, CommentSerializer
+from .serializers import (CategoriesSerializer, CommentSerializer,
+                          GenresSerializer, GenreTitleSerializer,
+                          ReviewSerializer, TitlesSerializer)
 
 User = get_user_model()
 
@@ -40,3 +45,29 @@ class CommentViewSet(OnlyAuthor, viewsets.ModelViewSet):
             title_id=self.kwargs.get("title_id"),
             review_id=self.kwargs.get("review_id")
         )
+
+
+class CategoriesViewSet(viewsets.ModelViewSet):
+    queryset = Categories.objects.all()
+    serializer_class = CategoriesSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenresViewSet(viewsets.ModelViewSet):
+    queryset = Genres.objects.all()
+    serializer_class = GenresSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+
+
+class GenreTitleViewSet(viewsets.ModelViewSet):
+    queryset = Genre_title.objects.all()
+    serializer_class = GenreTitleSerializer
+
+
+class TitlesViewSet(viewsets.ModelViewSet):
+    queryset = Titles.objects.all()
+    serializer_class = TitlesSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = ('category', 'name', 'genre', 'year')
