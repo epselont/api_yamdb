@@ -8,14 +8,14 @@ from .views import (CategoriesViewSet, GenresViewSet, TitlesViewSet, get_token,
 router = DefaultRouter()
 
 router.register(
-    'titles/(?P<title_id>\\d+)/reviews/(?P<review_id>\\d+)/comments',
+    r'titles/(?P<title_id>\\d+)/reviews/(?P<review_id>\\d+)/comments',
     views.CommentViewSet, basename='comment')
 router.register(
-    'titles/(?P<title_id>\\d+)/reviews',
+    r'titles/(?P<title_id>\\d+)/reviews',
     views.ReviewViewSet, basename='review')
-router.register('categories', CategoriesViewSet)
-router.register('genres', GenresViewSet)
-router.register('titles', TitlesViewSet)
+router.register(r'categories', CategoriesViewSet)
+router.register(r'genres', GenresViewSet)
+router.register(r'titles', TitlesViewSet)
 
 app_name = 'api'
 
