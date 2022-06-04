@@ -4,7 +4,7 @@ from .models import User
 
 
 @admin.register(User)
-class PostUser(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     list_display = (
         'pk', 'username', 'email',
         'role', 'first_name', 'last_name',
