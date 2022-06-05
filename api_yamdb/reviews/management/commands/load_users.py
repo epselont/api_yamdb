@@ -1,8 +1,7 @@
 import csv
+
 from django.core.management import BaseCommand
-
 from reviews.models import Users
-
 
 ALREDY_LOADED_ERROR_MESSAGE = """
 Если вам нужно перезагрузить данные из CSV-файла,

@@ -7,15 +7,16 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import (Categories, Genres, Review, Title,
-                            User)
+from reviews.models import Categories, Genres, Review, Title, User
+
 from .filters import TitleFilter
 from .mixins import CatGenMixin
-from .permissions import IsAdminOnly, IsAdminOrReadOnly, IsAdminModeratorOwnerOrReadOnly
+from .permissions import (IsAdminModeratorOwnerOrReadOnly, IsAdminOnly,
+                          IsAdminOrReadOnly)
 from .serializers import (CategoriesSerializer, CommentSerializer,
-                          GenresSerializer, GenreTitleSerializer,
-                          RegistrationSerializer, ReviewSerializer,
-                          TitlesSerializer, TitlesCreateSerializer, TokenSerializer,
+                          GenresSerializer, RegistrationSerializer,
+                          ReviewSerializer, TitlesCreateSerializer,
+                          TitlesSerializer, TokenSerializer,
                           UserEditSerializer, UsersSerializer)
 
 
@@ -50,10 +51,12 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
-        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
+        review = get_object_or_404(
+            Review, pk=self.kwargs.get("review_id"),
+            title=title
+        )
         serializer.save(
             author=self.request.user,
-            title=title,
             review=review
         )
 

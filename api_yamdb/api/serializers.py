@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator

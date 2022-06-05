@@ -65,7 +65,6 @@ class User(AbstractUser):
         """Пользователь в статусе администратора."""
         return self.role == self.ADMIN
 
-    # Свойство сообщает какое поле используется для входа в систему.
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username',)
 
