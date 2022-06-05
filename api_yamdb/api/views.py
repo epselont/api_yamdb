@@ -3,18 +3,20 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+from reviews.models import (Categories, Genre_title, Genres, Review, Titles,
+                            User)
 
-from reviews.models import (Categories, Genre_title, Genres, Review,
-                            Titles, User)
 from .mixins import OnlyAuthor
+from .permissions import IsAdminOnly
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenresSerializer, GenreTitleSerializer,
                           RegistrationSerializer, ReviewSerializer,
-                          TitlesSerializer, TokenSerializer)
+                          TitlesSerializer, TokenSerializer,
+                          UserEditSerializer, UsersSerializer)
 
 
 class ReviewViewSet(OnlyAuthor, viewsets.ModelViewSet):
@@ -113,3 +115,35 @@ def get_token(request):
         token = AccessToken.for_user(user)
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    """Управление пользователями."""
+    queryset = User.objects.all()
+    lookup_field = 'username'
+    serializer_class = UsersSerializer
+    permission_classes = (IsAdminOnly,)
+
+    @action(
+        methods=['get', 'patch'],
+        detail=False,
+        url_path='me',
+        permission_classes=[permissions.IsAuthenticated],
+        serializer_class=UserEditSerializer,
+    )
+    def user_profile(self, request):
+        """Получение и редактирование пользователем своих данных."""
+        user = request.user
+        if request.method == "GET":
+            serializer = UserEditSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.method == "PATCH":
+            serializer = UserEditSerializer(
+                user,
+                data=request.data,
+                partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

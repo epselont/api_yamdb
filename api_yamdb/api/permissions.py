@@ -3,6 +3,9 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 class IsAdminOnly(BasePermission):
     """Права администратора на управление всем контентом проекта."""
+
+    message = 'У вас нет прав для выполнения этого действия.'
+
     def has_permission(self, request, view):
         return request.user.is_authenticated and (
             request.user.is_admin or request.user.is_superuser)
@@ -11,7 +14,7 @@ class IsAdminOnly(BasePermission):
 class IsAdminOrReadOnly(BasePermission):
     """Права администратора и права чтения всеми пользователями."""
 
-    message = 'Требуются права администратора.'
+    message = 'У вас нет прав для выполнения этого действия.'
 
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
