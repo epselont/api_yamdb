@@ -7,11 +7,11 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import (Categories, Genre_title, Genres, Review, Titles,
+from reviews.models import (Categories, Genres, Review, Titles,
                             User)
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
-
+from .filters import TitleFilter
 from .mixins import OnlyAuthor
 from .permissions import IsAdminOnly, IsAdminOrReadOnly
 from .serializers import (CategoriesSerializer, CommentSerializer,
@@ -84,9 +84,12 @@ class GenresViewSet(CatGenMixin):
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
+    pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
+    filter_class = TitleFilter
     filterset_fields = ('category', 'name', 'genre', 'year')
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
     ordering_fields = ('genre',)
     ordering = ('slug',)
 
