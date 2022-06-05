@@ -6,7 +6,7 @@ from .views import (CategoriesViewSet, CommentViewSet, GenresViewSet,
                     registration)
 
 router = DefaultRouter()
-router.register(r'users', UsersViewSet,)
+router.register('users', UsersViewSet,)
 
 router.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
@@ -14,9 +14,9 @@ router.register(
 router.register(
     r'titles/(?P<title_id>\d+)/reviews',
     ReviewViewSet, basename='review')
-router.register(r'categories', CategoriesViewSet)
-router.register(r'genres', GenresViewSet)
-router.register(r'titles', TitlesViewSet)
+router.register('categories', CategoriesViewSet)
+router.register('genres', GenresViewSet)
+router.register('titles', TitlesViewSet)
 
 app_name = 'api'
 

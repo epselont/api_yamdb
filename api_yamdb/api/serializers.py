@@ -3,12 +3,22 @@ from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from reviews.models import (Categories, Comment, Genre_title, Genres, Review,
-                            Titles, User)
+                            Title, User)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True)
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault())
+
+    def validate(self, data):
+        title_id = self.context['view'].kwargs.get('title_id')
+        user = self.context['request'].user
+        if self.context['request'].method == 'POST':
+            if Review.objects.filter(title=title_id, author=user).exists():
+                raise serializers.ValidationError(
+                    'Второй отзыв оставить нельзя')
+        return data
 
     class Meta:
         model = Review
@@ -51,7 +61,7 @@ class TitlesSerializer(serializers.ModelSerializer):
     rating = serializers.SerializerMethodField()
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ('id', 'name', 'year', 'rating', 'description',
                   'genre', 'category')
         read_only_fields = ('id',)
@@ -85,7 +95,7 @@ class TitlesCreateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'name', 'year', 'description',
                   'genre', 'category')
-        model = Titles
+        model = Title
 
 
 class RegistrationSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Comment, Review, Titles, User
+from .models import Comment, Review, Title, User
 
 
 @admin.register(Review)
@@ -19,7 +19,7 @@ class CommentAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-@admin.register(Titles)
+@admin.register(Title)
 class TitleAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name',)
     search_fields = ('name',)

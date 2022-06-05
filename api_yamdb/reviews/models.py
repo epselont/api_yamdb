@@ -104,7 +104,7 @@ class Categories(models.Model):
         return self.name
 
 
-class Titles(models.Model):
+class Title(models.Model):
     name = models.CharField(
         'Название произведения',
         max_length=200
@@ -126,7 +126,7 @@ class Titles(models.Model):
 class Review(models.Model):
     text = models.TextField()
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='reviews',
     )
@@ -144,6 +144,8 @@ class Review(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
+        constraints = [models.UniqueConstraint(fields=['title', 'author'],
+                       name='unique review')]
 
 
 class Comment(models.Model):
@@ -176,7 +178,7 @@ class Genre_title(models.Model):
         verbose_name='Жанр',
     )
     title = models.ForeignKey(
-        Titles,
+        Title,
         on_delete=models.CASCADE,
         related_name='title',
         verbose_name='Категория',

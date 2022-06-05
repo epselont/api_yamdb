@@ -7,13 +7,11 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from reviews.models import (Categories, Genres, Review, Titles,
+from reviews.models import (Categories, Genres, Review, Title,
                             User)
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
 from .filters import TitleFilter
-from .mixins import OnlyAuthor
-from .permissions import IsAdminOnly, IsAdminOrReadOnly
+from .mixins import CatGenMixin
+from .permissions import IsAdminOnly, IsAdminOrReadOnly, IsAdminModeratorOwnerOrReadOnly
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenresSerializer, GenreTitleSerializer,
                           RegistrationSerializer, ReviewSerializer,
@@ -21,41 +19,42 @@ from .serializers import (CategoriesSerializer, CommentSerializer,
                           UserEditSerializer, UsersSerializer)
 
 
-class CatGenMixin(ListModelMixin, CreateModelMixin, DestroyModelMixin,
-                  viewsets.GenericViewSet):
-    pass
-
-
-class ReviewViewSet(OnlyAuthor, viewsets.ModelViewSet):
+class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     pagination_class = PageNumberPagination
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
     def get_queryset(self):
-        titles = get_object_or_404(Titles, pk=self.kwargs.get("title_id"))
+        titles = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         reviews = titles.reviews.all()
         return reviews
 
     def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user, title_id=self.kwargs.get("title_id"))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=self.request.user, title=title)
+            return Response(status=status.HTTP_201_CREATED)
 
 
-class CommentViewSet(OnlyAuthor, viewsets.ModelViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     pagination_class = PageNumberPagination
+    permission_classes = (IsAdminModeratorOwnerOrReadOnly,)
 
     def get_queryset(self):
-        title = get_object_or_404(Titles, pk=self.kwargs.get("title_id"))
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
         review = get_object_or_404(
             Review, pk=self.kwargs.get("review_id"), title=title)
         comments = review.comments.all()
         return comments
 
     def perform_create(self, serializer):
+        title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
+        review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))
         serializer.save(
             author=self.request.user,
-            title_id=self.kwargs.get("title_id"),
-            review_id=self.kwargs.get("review_id")
+            title=title,
+            review=review
         )
 
 
@@ -82,7 +81,7 @@ class GenresViewSet(CatGenMixin):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Titles.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
