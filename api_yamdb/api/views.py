@@ -9,14 +9,21 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import (Categories, Genre_title, Genres, Review, Titles,
                             User)
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
 
 from .mixins import OnlyAuthor
-from .permissions import IsAdminOnly
+from .permissions import IsAdminOnly, IsAdminOrReadOnly
 from .serializers import (CategoriesSerializer, CommentSerializer,
                           GenresSerializer, GenreTitleSerializer,
                           RegistrationSerializer, ReviewSerializer,
-                          TitlesSerializer, TokenSerializer,
+                          TitlesSerializer, TitlesCreateSerializer, TokenSerializer,
                           UserEditSerializer, UsersSerializer)
+
+
+class CatGenMixin(ListModelMixin, CreateModelMixin, DestroyModelMixin,
+                  viewsets.GenericViewSet):
+    pass
 
 
 class ReviewViewSet(OnlyAuthor, viewsets.ModelViewSet):
@@ -52,23 +59,26 @@ class CommentViewSet(OnlyAuthor, viewsets.ModelViewSet):
         )
 
 
-class CategoriesViewSet(viewsets.ModelViewSet):
+class CategoriesViewSet(CatGenMixin):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
-class GenresViewSet(viewsets.ModelViewSet):
+class GenresViewSet(CatGenMixin):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
-
-
-class GenreTitleViewSet(viewsets.ModelViewSet):
-    queryset = Genre_title.objects.all()
-    serializer_class = GenreTitleSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name',)
+    lookup_field = 'slug'
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
@@ -76,6 +86,14 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('category', 'name', 'genre', 'year')
+    permission_classes = (IsAdminOrReadOnly,)
+    ordering_fields = ('genre',)
+    ordering = ('slug',)
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'partial_update'):
+            return TitlesCreateSerializer
+        return TitlesSerializer
 
 
 @api_view(["POST"])

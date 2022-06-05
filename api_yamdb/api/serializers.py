@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from reviews.models import (Categories, Comment, Genre_title, Genres, Review,
@@ -48,10 +48,19 @@ class GenreTitleSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     category = CategoriesSerializer(read_only=True)
     genre = GenresSerializer(read_only=True, many=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Titles
-        fields = ('__all__')
+        fields = ('id', 'name', 'year', 'rating', 'description',
+                  'genre', 'category')
+        read_only_fields = ('id',)
+
+    def get_rating(self, obj):
+        average = obj.reviews.aggregate(Avg('score'))
+        if not average['score__avg']:
+            return None
+        return int(average['score__avg'])
 
     def validate_year(self, value):
         year = datetime.now().year
@@ -60,6 +69,23 @@ class TitlesSerializer(serializers.ModelSerializer):
                 'Это произведение не опубликованно, проверьте дату!'
             )
         return value
+
+
+class TitlesCreateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Categories.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Genres.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        fields = ('id', 'name', 'year', 'description',
+                  'genre', 'category')
+        model = Titles
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
