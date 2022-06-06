@@ -2,8 +2,7 @@ from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-
-from reviews.models import (Categories, Comment, Genre_title, Genres, Review,
+from reviews.models import (Categories, Comment, Genres, Review,
                             Title, User)
 
 
@@ -39,21 +38,14 @@ class CategoriesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Categories
-        fields = ('name', 'slug')
+        exclude = ['id']
 
 
 class GenresSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genres
-        fields = ('name', 'slug')
-
-
-class GenreTitleSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Genre_title
-        fields = ('__all__')
+        exclude = ['id']
 
 
 class TitlesSerializer(serializers.ModelSerializer):
@@ -74,8 +66,7 @@ class TitlesSerializer(serializers.ModelSerializer):
         return int(average['score__avg'])
 
     def validate_year(self, value):
-        year = timezone.now().year  # timezone уже пофиксили
-        if not (value > year):
+        if value > timezone.now().year:
             raise serializers.ValidationError(
                 'Это произведение не опубликованно, проверьте дату!'
             )
