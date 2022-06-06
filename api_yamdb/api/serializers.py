@@ -1,6 +1,5 @@
-from datetime import datetime
-
 from django.db.models import Avg
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -75,7 +74,7 @@ class TitlesSerializer(serializers.ModelSerializer):
         return int(average['score__avg'])
 
     def validate_year(self, value):
-        year = datetime.now().year
+        year = timezone.now().year  # timezone уже пофиксили
         if not (value > year):
             raise serializers.ValidationError(
                 'Это произведение не опубликованно, проверьте дату!'
