@@ -1,14 +1,14 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-
-def validate_even(value):
-    if value not in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10):
-        raise ValidationError(
-            (f'Оценка должна быть от 1 до 10. Ваша {value}'),
-            params={'value': value},
-        )
+# def validate_even(value):
+#     if value not in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10):
+#         raise ValidationError(
+#             (f'Оценка должна быть от 1 до 10. Ваша {value}'),
+#             params={'value': value},
+#         )
 
 
 class User(AbstractUser):
@@ -134,7 +134,13 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
     )
-    score = models.PositiveIntegerField(default=1, validators=[validate_even])
+    score = models.PositiveIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        ]
+    )
     pub_date = models.DateTimeField(
         'Дата создания',
         auto_now_add=True,

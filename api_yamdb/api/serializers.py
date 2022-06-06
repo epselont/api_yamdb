@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db.models import Avg
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
 from reviews.models import (Categories, Comment, Genre_title, Genres, Review,
                             Title, User)
 
@@ -114,7 +115,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, name):
         """Запрещено использование имени 'me'."""
-        if name == 'me':
+        if name.lower() == 'me':
             raise serializers.ValidationError(
                 'Использовать имя "me" в качестве username запрещено.'
             )

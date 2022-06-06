@@ -25,11 +25,11 @@ class IsAdminOrReadOnly(BasePermission):
 class IsAdminModeratorOwnerOrReadOnly(BasePermission):
     """Права на изменение контента администратором,
     модератором, автором и права чтения всеми пользователями."""
+    message = 'Изменение доступно автору, модератору или администратору.'
+
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
                 or request.user.is_authenticated)
-
-    message = 'Изменение доступно автору, модератору или администратору.'
 
     def has_object_permission(self, request, view, obj):
         return (request.method in SAFE_METHODS
