@@ -117,10 +117,11 @@ class Title(models.Model):
         verbose_name='Год создания'
     )
     description = models.TextField('Описание')
-    genre = models.ManyToManyField(Genres, through='Genre_title')
+    genre = models.ManyToManyField(Genres)
     category = models.ForeignKey(
         Categories,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name='titles',
         verbose_name='Категория',
     )
@@ -180,21 +181,3 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['-pub_date']
-
-
-class Genre_title(models.Model):
-    genre = models.ForeignKey(
-        Genres,
-        on_delete=models.CASCADE,
-        related_name='genre',
-        verbose_name='Жанр',
-    )
-    title = models.ForeignKey(
-        Title,
-        on_delete=models.CASCADE,
-        related_name='title',
-        verbose_name='Категория',
-    )
-
-    def __str__(self):
-        return f'{self.title.name} {self.genre.name}'

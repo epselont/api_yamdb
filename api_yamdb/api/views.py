@@ -1,5 +1,6 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, serializers, status, viewsets
@@ -91,13 +92,13 @@ class TitlesViewSet(viewsets.ModelViewSet):
     ordering_fields = ('genre',)
     ordering = ('slug',)
 
+    def get_queryset(self):
+        return Title.objects.all().annotate(rating=Avg('reviews__score'))
+
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
             return TitlesCreateSerializer
         return TitlesSerializer
-
-    def get_queryset(self):
-        titles = Title.objects.all().aggregate(Avg('rating'))
 
 
 @api_view(["POST"])
