@@ -1,6 +1,7 @@
 import csv
 
 from django.core.management import BaseCommand
+
 from reviews.models import Genres
 
 ALREDY_LOADED_ERROR_MESSAGE = """
