@@ -1,7 +1,7 @@
 import csv
 
 from django.core.management import BaseCommand
-from reviews.models import Reviews
+from reviews.models import Review, User
 
 ALREDY_LOADED_ERROR_MESSAGE = """
 Если вам нужно перезагрузить данные из CSV-файла,
@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if Reviews.objects.exists():
+        if Review.objects.exists():
             print(ALREDY_LOADED_ERROR_MESSAGE)
             return
 
@@ -24,11 +24,12 @@ class Command(BaseCommand):
         with open('./static/data/review.csv', encoding='utf-8') as file:
             data = csv.DictReader(file)
             for row in data:
-                data_load = Reviews(
+                author = User.objects.get(pk=row['author'])
+                data_load = Review(
                     id=row['id'],
                     title_id=row['title_id'],
                     text=row['text'],
-                    author=row['author'],
+                    author=author,
                     score=row['score'],
                     pub_date=row['pub_date']
                 )
