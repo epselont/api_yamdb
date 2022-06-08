@@ -1,16 +1,8 @@
 from django.contrib.auth.models import AbstractUser
-# from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from .validators import year_validator
-
-# def validate_even(value):
-#     if value not in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10):
-#         raise ValidationError(
-#             (f'Оценка должна быть от 1 до 10. Ваша {value}'),
-#             params={'value': value},
-#         )
 
 
 class User(AbstractUser):
