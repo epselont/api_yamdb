@@ -34,8 +34,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get("title_id"))
-        if not serializer.is_valid():
-            raise serializers.ValidationError(serializer.errors)
         serializer.save(author=self.request.user, title=title)
 
 
@@ -82,7 +80,7 @@ class GenresViewSet(CatGenMixin):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitlesSerializer
     pagination_class = PageNumberPagination
     filter_backends = (DjangoFilterBackend,)
@@ -91,9 +89,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     ordering_fields = ('genre',)
     ordering = ('slug',)
-
-    def get_queryset(self):
-        return Title.objects.all().annotate(rating=Avg('reviews__score'))
 
     def get_serializer_class(self):
         if self.action in ('create', 'partial_update'):
