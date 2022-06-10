@@ -8,7 +8,6 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-from django.db.models import Avg
 
 from reviews.models import Categories, Genres, Review, Title, User
 from .filters import TitleFilter
